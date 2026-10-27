@@ -1,3 +1,4 @@
+
 package com.shopsphere.inventory.service;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class InventoryService {
         if (inventoryRepository.existsByProductId(inventory.getProductId())) {
             throw new IllegalArgumentException(
                     "Inventory already exists for product ID: "
-                    + inventory.getProductId());
+                            + inventory.getProductId());
         }
 
         if (inventory.getAvailableQuantity() < 0) {
@@ -50,12 +51,15 @@ public class InventoryService {
     @Transactional
     public Inventory updateStock(Long productId, Integer quantity) {
 
-        if (quantity < 0) {
+        if (quantity == null || quantity < 0) {
             throw new IllegalArgumentException(
                     "Quantity cannot be negative");
         }
 
-        Inventory inventory = getInventoryByProductId(productId);
+        Inventory inventory = inventoryRepository
+                .findWithLockingByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Inventory not found for product ID: " + productId));
 
         inventory.setAvailableQuantity(quantity);
 
@@ -65,12 +69,15 @@ public class InventoryService {
     @Transactional
     public Inventory reserveStock(Long productId, Integer quantity) {
 
-        if (quantity <= 0) {
+        if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException(
                     "Reservation quantity must be greater than zero");
         }
 
-        Inventory inventory = getInventoryByProductId(productId);
+        Inventory inventory = inventoryRepository
+                .findWithLockingByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Inventory not found for product ID: " + productId));
 
         if (inventory.getAvailableQuantity() < quantity) {
             throw new IllegalArgumentException(
