@@ -98,8 +98,8 @@ class InventoryServiceTest {
 
     @Test
     void updateStock_shouldUpdateAvailableQuantity() {
-        when(inventoryRepository.findByProductId(101L))
-                .thenReturn(Optional.of(inventory));
+    	when(inventoryRepository.findWithLockingByProductId(101L))
+        .thenReturn(Optional.of(inventory));
 
         when(inventoryRepository.save(any(Inventory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -120,8 +120,8 @@ class InventoryServiceTest {
 
     @Test
     void reserveStock_shouldMoveQuantityFromAvailableToReserved() {
-        when(inventoryRepository.findByProductId(101L))
-                .thenReturn(Optional.of(inventory));
+        when(inventoryRepository.findWithLockingByProductId(101L))
+        .thenReturn(Optional.of(inventory));
 
         when(inventoryRepository.save(any(Inventory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -136,8 +136,8 @@ class InventoryServiceTest {
 
     @Test
     void reserveStock_shouldRejectInsufficientStock() {
-        when(inventoryRepository.findByProductId(101L))
-                .thenReturn(Optional.of(inventory));
+    	when(inventoryRepository.findWithLockingByProductId(101L))
+        .thenReturn(Optional.of(inventory));
 
         assertThrows(IllegalArgumentException.class,
                 () -> inventoryService.reserveStock(101L, 15));
